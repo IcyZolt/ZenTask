@@ -14,14 +14,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.zentask.ui.theme.ZenTaskTheme
 
 class MainActivity : ComponentActivity() {
+
+    //C++ function (stringFromJNI) bridge to Kotlin
+    companion object {
+        init {
+            System.loadLibrary("zentask")
+        }
+    }
+    external  fun stringFromJNI() : String
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ZenTaskTheme {
+                //catch into variable from the returned c++ code
+                val cppTestMessage = stringFromJNI()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                    //display greeting under the original greeting text
+                    Greeting(
+                        name = "\n$cppTestMessage",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
