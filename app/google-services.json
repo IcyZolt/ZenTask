@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851541736331",
+    "project_id": "zentask-7e765",
+    "storage_bucket": "zentask-7e765.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851541736331:android:7061a8902f4674322fcd8e",
+        "android_client_info": {
+          "package_name": "com.example.zentask"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEMZhr3P-RzbsJ2WU3oVB_BSrRFxWo--I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
