@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
         if (isFirstRun) {
             //launch SettingsActivity for first run
-            val intent = Intent(this, SettingsActivity::class.java)
+            val intent = Intent(this, StartupPage::class.java)
             startActivity(intent)
 
             //mark first run as complete
