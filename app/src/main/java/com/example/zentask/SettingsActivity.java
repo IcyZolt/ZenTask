@@ -1,11 +1,13 @@
 package com.example.zentask;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.compose.ui.text.font.FontVariation;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -36,7 +38,12 @@ public class SettingsActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("username", usernameInput.getText().toString());
             editor.putBoolean("notifications", notificationSwitch.isChecked());
+            editor.putBoolean("isFirstRun", false);
             editor.apply();
+
+            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+            startActivity(intent);
+
             finish();
         });
     }
