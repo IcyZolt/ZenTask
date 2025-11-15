@@ -1,43 +1,37 @@
 package com.example.zentask
 
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardActions
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.example.zentask.model.Task
-import com.example.zentask.viewmodel.TaskViewModel
 
+data class Task(
+    val id: Int,
+    val title: String,
+    var isDone: Boolean = false
+)
 
-@Composable
-fun TaskList(tasks: List<Task>, onDelete: (Task) -> Unit) {
-    LazyColumn {
-        items(
-            items = tasks,
-            key = { it.id }
-        ) { task: Task ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(task.title, style = MaterialTheme.typography.bodyLarge)
-                IconButton(onClick = { onDelete(task) }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Remove")
-                }
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                TaskManagerApp()
             }
         }
     }
@@ -45,148 +39,118 @@ fun TaskList(tasks: List<Task>, onDelete: (Task) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(viewModel: TaskViewModel) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+fun TaskManagerApp() {
+
+    var tasks by remember { mutableStateOf(listOf<Task>()) }
+    var isAdding by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = { Text("Tasks") },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO: open drawer */ }) {
+                    IconButton(onClick = {}) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
                     }
                 }
             )
+        },
+
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { isAdding = true }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Task")
+            }
         }
     ) { padding ->
+
         Column(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
-        ) {
-            // Input field always visible
-            TextField(
-                value = viewModel.newTaskTitle,
-                onValueChange = viewModel::updateTaskTitle,
-                placeholder = { Text("New Task") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = androidx.compose.ui.text.KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = androidx.compose.ui.text.input.KeyboardActions(
-                    onDone = {
-                        if (viewModel.newTaskTitle.isNotBlank()) {
-                            viewModel.submitTask()
-                            keyboardController?.hide()
-                        }
-                    }
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TaskList(
-                tasks = viewModel.tasks,
-                onDelete = { task -> viewModel.removeTask(task) }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TaskScreenUI(viewModel: TaskViewModel) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Zen Tasks") },
-                navigationIcon = {
-                    IconButton(onClick = { /* TODO: drawer */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.onAddButtonClicked() },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task")
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
         ) {
 
-            // Animated visibility for input field
-            if (viewModel.isAdding) {
-                Surface(
-                    tonalElevation = 6.dp,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextField(
-                        value = viewModel.newTaskTitle,
-                        onValueChange = viewModel::updateTaskTitle,
-                        placeholder = { Text("Enter new task") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                viewModel.submitTask()
-                                keyboardController?.hide()
+            // Add Task Field
+            if (isAdding) {
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text("New Task") },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                        onDone = {
+                            if (text.isNotBlank()) {
+                                tasks = tasks + Task(
+                                    id = tasks.size + 1,
+                                    title = text
+                                )
+                                text = ""
+                                isAdding = false
                             }
-                        )
-                    )
-                }
-
+                        }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+            // Tasks List
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(viewModel.tasks, key = { it.id }) { task ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = task.title,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            IconButton(onClick = { viewModel.removeTask(task) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Task",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                items(tasks, key = { it.id }) { task ->
+                    TaskCard(
+                        task = task,
+                        onToggle = {
+                            tasks = tasks.map {
+                                if (it.id == task.id) it.copy(isDone = !it.isDone) else it
                             }
+                        },
+                        onDelete = {
+                            tasks = tasks.filter { it.id != task.id }
                         }
-                    }
+                    )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskCard(
+    task: Task,
+    onToggle: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                text = task.title,
+                textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
+                color = if (task.isDone) Color.Gray else Color.Unspecified,
+                modifier = Modifier.clickable { onToggle() }
+            )
+
+            IconButton(onClick = { onDelete() }) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete Task")
             }
         }
     }
