@@ -18,6 +18,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
@@ -57,10 +58,11 @@ class MainActivity : ComponentActivity() {
             ZenTaskTheme {
 
                 val cppMessage = stringFromJNI()
-                val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+                //val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
 
-                val username = usernameFromFile
-                val showGreeting = prefs.getBoolean("showGreetingOnce", true)
+                // val username = usernameFromFile
+
+                //val showGreeting = prefs.getBoolean("showGreetingOnce", true)
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(
@@ -68,7 +70,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                             .padding(16.dp)
-                    ) {
+                    ) {/*
                         if (showGreeting) {
                             Text(
                                 text = "Hello $username",
@@ -76,13 +78,18 @@ class MainActivity : ComponentActivity() {
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             prefs.edit { putBoolean("showGreetingOnce", false) }
-                        }
+                        }*/
 
                         Text(
                             text = cppMessage,
                             style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
                         )
+
+                        startActivity(Intent(this@MainActivity, CreateTask::class.java))
+
+
                     }
+
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.example.zentask;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 //import android.content.DialogInterface;
@@ -20,7 +21,24 @@ public class CreateTask extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
+
         setContentView(R.layout.create_task);
+
+
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        boolean showGreeting = pref.getBoolean("showGreetingOnce", true);
+        String username = UserStorage.loadUsername(this);
+
+        if(username == null){
+            username = "User";
+        }
+        TextView greetingView = findViewById(R.id.greetingText);
+        if(showGreeting){
+            greetingView.setText("Hello "+ username);
+            pref.edit().putBoolean("showGreetingOnce", false).apply();
+        } else{
+            greetingView.setVisibility(View.GONE);
+        }
 
         add = findViewById(R.id.addTask);
         layout = findViewById(R.id.container);
