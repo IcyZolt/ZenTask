@@ -47,11 +47,6 @@ public class UserStorage {
         }
     }
 
-    public static boolean hasUsername(Context context) {
-        File f = new File(context.getFilesDir(), FILE_NAME);
-        return f.exists() && f.length() > 0;
-    }
-
     private static void logFileInfo(Context context) {
         try {
             File f = new File(context.getFilesDir(), FILE_NAME);
@@ -67,7 +62,7 @@ public class UserStorage {
                 if (n > 0) {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < n; i++) sb.append(String.format("%02X ", buf[i]));
-                    Log.d("UserStorage", "HEAD_HEX: " + sb.toString());
+                    Log.d("UserStorage", "HEAD_HEX: " + sb);
                 }
             }
         } catch (Exception e) {

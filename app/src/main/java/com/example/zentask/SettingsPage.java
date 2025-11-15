@@ -1,5 +1,6 @@
 package com.example.zentask;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class SettingsPage extends AppCompatActivity {
 
     EditText usernameInputStart;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch notificationSwitchStart;
     Button saveButtonStart;
     SharedPreferences prefs;

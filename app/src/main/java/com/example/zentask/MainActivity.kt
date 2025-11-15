@@ -1,6 +1,6 @@
 package com.example.zentask
 
-import android.content.SharedPreferences
+//import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,35 +20,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 
 
 class MainActivity : ComponentActivity() {
 
-
-    //C++ function (stringFromJNI) bridge to Kotlin
+    // C++ function (stringFromJNI) bridge to Kotlin
     companion object {
         init {
             System.loadLibrary("zentask")
         }
     }
 
-
-    //native link JNI bridge
+    // native link JNI bridge
     external fun stringFromJNI(): String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //preference for first run
-        val prefs: SharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        // preference for first run
+     //   val prefs: SharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
         val usernameFromFile = UserStorage.loadUsername(this)
 
         if (usernameFromFile.isNullOrEmpty()) {
-            //launch SettingsActivity for first run
+            // launch SettingsActivity for first run
             Log.d("MainActivity", "No saved username found, opening setting")
             startActivity(Intent(this, SettingsPage::class.java))
-            finish()//stop mainactivity still user setup finished
-            return // stop executing until user comes back
+            finish()
+            return
         } else {
             Log.d("MainActivity", "Welcome back")
         }
@@ -57,33 +56,46 @@ class MainActivity : ComponentActivity() {
         setContent {
             ZenTaskTheme {
 
-                //catch into variable from the returned c++ code
-                val cppTestMessage = stringFromJNI()
+                val cppMessage = stringFromJNI()
+                val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+
+                val username = usernameFromFile
+                val showGreeting = prefs.getBoolean("showGreetingOnce", true)
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    //display greeting under the original greeting text
-                    Greeting(
-                        name = "\n$cppTestMessage",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Greeting(modifier = Modifier.padding(innerPadding))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(16.dp)
+                    ) {
+                        if (showGreeting) {
+                            Text(
+                                text = "Hello $username",
+                                style = androidx.compose.material3.MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            prefs.edit { putBoolean("showGreetingOnce", false) }
+                        }
 
+                        Text(
+                            text = cppMessage,
+                            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }
     }
+
 
     @Composable
     fun Greeting(modifier: Modifier = Modifier, name: String) {
         val prefs = LocalContext.current.getSharedPreferences("UserPrefs", MODE_PRIVATE)
         val userName = prefs.getString("username", name)
         Text(text = "Hello $userName!", modifier = modifier)
-
     }
+
 
     @Preview(showBackground = true)
     @Composable
