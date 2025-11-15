@@ -21,14 +21,14 @@ public class SettingsPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.startup_page);
 
 
 
         //connect layout elements
-        usernameInputStart = findViewById(R.id.username_input);
-        notificationSwitchStart = findViewById(R.id.notification_switch);
-        saveButtonStart = findViewById(R.id.save_button);
+        usernameInputStart = findViewById(R.id.username_input_start);
+        notificationSwitchStart = findViewById(R.id.notification_switch_start);
+        saveButtonStart = findViewById(R.id.save_button_start);
 
         //get shared preferences
         prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);

@@ -16,12 +16,9 @@ import com.example.zentask.ui.theme.ZenTaskTheme
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.edit
+import com.example.zentask.TaskLogic.CreateTask
 
 
 class MainActivity : ComponentActivity() {

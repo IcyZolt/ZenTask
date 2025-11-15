@@ -14,7 +14,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".CreateTask"
+            android:name=".TaskLogic.CreateTask"
             android:exported="false" />
 
         <activity
