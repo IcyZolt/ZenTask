@@ -95,7 +95,7 @@ public class CreateTask extends AppCompatActivity{
             taskList.remove(finalTask);
             TaskStorage.saveTasks(this, taskList);
         });
-        layout.addView(view);
+        layout.addView(view, layout.getChildCount()-1);
     }
     protected void onStop(){
         super.onStop();
