@@ -11,8 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.content.Intent;
+
 
 import com.example.zentask.R;
+import com.example.zentask.SettingsPage;
 import com.example.zentask.UserStorage;
 
 public class CreateTask extends AppCompatActivity{
@@ -58,6 +61,14 @@ public class CreateTask extends AppCompatActivity{
         for(Task t: taskList){
             addCard(t.name, false);
         }
+
+        Button settingsButton = findViewById(R.id.settings_button);
+
+        settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(CreateTask.this, SettingsPage.class);
+            startActivity(intent);
+        });
+
     }
     public void buildDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
