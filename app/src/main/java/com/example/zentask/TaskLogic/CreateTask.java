@@ -16,6 +16,7 @@ import android.content.Intent;
 
 import com.example.zentask.R;
 import com.example.zentask.SettingsPage;
+import com.example.zentask.TaskLogic.TaskModification.TaskModification;
 import com.example.zentask.UserStorage;
 
 public class CreateTask extends AppCompatActivity{
@@ -101,6 +102,22 @@ public class CreateTask extends AppCompatActivity{
 
         Task finalTask = t;
 
+        view.setOnLongClickListener(v -> {
+            TaskModification.showEditDialog(this, finalTask, (newName, newDate, newDescription) -> {
+
+                String oldName = finalTask.name;
+
+                finalTask.name = newName;
+                finalTask.date = newDate;
+                finalTask.description = newDescription;
+
+                TaskStorage.saveTasks(this, taskList);
+                refresh(oldName, finalTask);
+            });
+
+            return true;
+        });
+
         delete.setOnClickListener(v -> {
             layout.removeView(view);
             taskList.remove(finalTask);
@@ -108,8 +125,23 @@ public class CreateTask extends AppCompatActivity{
         });
         layout.addView(view, layout.getChildCount()-1);
     }
+
     protected void onStop(){
         super.onStop();
         TaskStorage.saveTasks(this,taskList);
     }
+
+    private void refresh(String oldName, Task task){
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View card = layout.getChildAt(i);
+            TextView nameView = card.findViewById(R.id.name);
+            if (nameView.getText().equals(oldName)) {
+                nameView.setText(task.name);
+                break;
+
+            }
+
+        }
+    }
+
 }
