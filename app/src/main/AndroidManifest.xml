@@ -10,6 +10,10 @@
         android:theme="@style/Theme.ZenTask">
 
         <activity
+            android:name=".HelpPage"
+            android:exported="false" />
+
+        <activity
             android:name=".SettingsPage"
             android:exported="false" />
 
