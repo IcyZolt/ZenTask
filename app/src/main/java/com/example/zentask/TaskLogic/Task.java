@@ -4,10 +4,12 @@ public class Task {
     public String name;
     public String date;
     public String description;
+    public boolean isArchived;
 
     public Task(String name, String date, String description) {
         this.name = name;
         this.date = date;
         this.description = description;
+        this.isArchived = false;
     }
 }
