@@ -1,0 +1,6 @@
+package com.example.zentask.TaskLogic.TaskModification;
+
+public interface OnTaskEdited {
+    void onEdited(String newName, String newDate, String newDescription);
+
+}
