@@ -11,9 +11,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                // Optional: wrap in Surface for proper Material3 background
                 Surface {
-                    NavigationManager() // Launch the navigation system
+                    NavigationManager()
                 }
             }
         }

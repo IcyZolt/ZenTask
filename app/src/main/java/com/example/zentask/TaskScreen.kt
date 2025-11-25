@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-// Task data class
 data class Task(
     val id: Int,
     val title: String,
@@ -46,7 +45,6 @@ fun TasksScreen(drawerState: DrawerState) {
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            // Add Task Field
             if (isAdding) {
                 TextField(
                     value = text,

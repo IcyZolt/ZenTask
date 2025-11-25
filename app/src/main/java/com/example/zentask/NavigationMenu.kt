@@ -14,12 +14,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-// Define all screens
 enum class Screen {
     Tasks, Archive, Leaderboards, Settings
 }
 
-// Drawer menu item
 data class DrawerMenuItem(
     val label: String,
     val icon: ImageVector,
@@ -91,7 +89,6 @@ fun AppTopBar(title: String, drawerState: DrawerState) {
     )
 }
 
-/* ------------------- Placeholder Screens ------------------- */
 @Composable
 fun ArchiveScreen(drawerState: DrawerState) {
     Scaffold(topBar = { AppTopBar("Archive", drawerState) }) { padding ->
