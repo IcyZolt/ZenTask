@@ -187,7 +187,6 @@ public class CreateTask extends AppCompatActivity {
                 break;
         }
     }
-
     private String formatTime(Task task) {
         if (task.time <= 0 || task.ampm == null || task.ampm.isEmpty()) {
             return "";
@@ -198,6 +197,6 @@ public class CreateTask extends AppCompatActivity {
 
         return String.format("%02d:%02d %s", hour, minute, task.ampm);
     }
-
-
 }
+
+
