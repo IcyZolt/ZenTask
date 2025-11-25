@@ -97,6 +97,10 @@ public class CreateTask extends AppCompatActivity {
         final View view = getLayoutInflater().inflate(R.layout.card, null);
 
         TextView nameView = view.findViewById(R.id.name);
+
+        TextView dateView = view.findViewById(R.id.date);
+        TextView timeView = view.findViewById(R.id.time);
+
         Button delete = view.findViewById(R.id.delete);
         Button complete = view.findViewById(R.id.complete); // new button
 
@@ -114,7 +118,12 @@ public class CreateTask extends AppCompatActivity {
 
         Task finalTask = t;
 
-        // Long press for editing
+        nameView.setText(finalTask.name);
+        dateView.setText(finalTask.date);
+
+        timeView.setText(formatTime(finalTask));
+
+
         view.setOnLongClickListener(v -> {
             TaskModification.showEditDialog(this, finalTask, (newName, newDate, newTime, ampm, newDescription) -> {
                 String oldName = finalTask.name;
@@ -163,11 +172,32 @@ public class CreateTask extends AppCompatActivity {
     private void refresh(String oldName, Task task) {
         for (int i = 0; i < layout.getChildCount(); i++) {
             View card = layout.getChildAt(i);
+
             TextView nameView = card.findViewById(R.id.name);
-            if (nameView.getText().equals(oldName)) {
-                nameView.setText(task.name);
-                break;
+            TextView dateView = card.findViewById(R.id.date);
+            TextView timeView = card.findViewById(R.id.time);
+
+            if (nameView.getText().toString().equals(oldName)) {
+                continue;
             }
+                nameView.setText(task.name);
+                dateView.setText(task.date);
+                timeView.setText(formatTime(task));
+
+                break;
         }
     }
+
+    private String formatTime(Task task) {
+        if (task.time <= 0 || task.ampm == null || task.ampm.isEmpty()) {
+            return "";
+        }
+
+        int hour = task.time / 100;
+        int minute = task.time % 100;
+
+        return String.format("%02d:%02d %s", hour, minute, task.ampm);
+    }
+
+
 }
