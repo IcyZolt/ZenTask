@@ -25,6 +25,8 @@ public class TaskStorage {
             obj.put("name", t.name);
             obj.put("date", t.date);
             obj.put("description", t.description);
+            obj.put("isArchived", t.isArchived);
+
             bw.write(obj.toString());
             bw.newLine();
         }
@@ -54,8 +56,11 @@ public class TaskStorage {
                     String name = obj.optString("name", "");
                     String date = obj.optString("date", "");
                     String desc = obj.optString("description", "");
+                    Task t = new Task(name, date, desc);
 
-                    list.add(new Task(name, date, desc));
+                    t.isArchived = obj.optBoolean("isArchived", false);
+
+                    list.add(t);
             } catch (org.json.JSONException e){
                     Log.e("TaskStorage", "Bad JSON line, skipping: " + line, e);
                 }
