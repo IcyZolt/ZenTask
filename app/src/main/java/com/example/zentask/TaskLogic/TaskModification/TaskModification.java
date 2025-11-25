@@ -52,17 +52,40 @@ public class TaskModification {
 
         AmPmBox.setSelection(task.ampm != null && task.ampm.equals("PM") ? 1 : 0);
 
+        builder.setPositiveButton("Save", null);
+        builder.setNegativeButton("Cancel", null);
 
-        builder.setPositiveButton("Save", (d, w) -> {
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
 
             String newName = nameBox.getText().toString();
             String newDate = dateBox.getText().toString();
-
             String newHour = hourBox.getText().toString();
             String newMinute = minuteBox.getText().toString();
 
+            if(newHour.isEmpty() || newMinute.isEmpty()) {
+                hourBox.setError("Invalid Time");
+                minuteBox.setError("Invalid Time");
+                return;
+            }
+
+
+
             int hourNew = Integer.parseInt(newHour);
             int minNew = Integer.parseInt(newMinute);
+
+            if(hourNew<1||hourNew>12) {
+                hourBox.setError("Invalid Time");
+                return;
+            }
+
+            if(minNew<0 || minNew>59){
+                minuteBox.setError("Invalid Time");
+                return;
+            }
+
             int combinedTime = hourNew * 100 + minNew;
 
             String ampm = AmPmBox.getSelectedItem().toString();
@@ -71,6 +94,11 @@ public class TaskModification {
             //normalize date
             String normalizedDate = DateNormalizeHelper.normalizeDate(newDate);
 
+            if(normalizedDate.isEmpty()){
+                dateBox.setError("Use MM/DD/YYYY");
+                return;
+            }
+
             callback.onEdited(
                     newName,
                     normalizedDate,
@@ -78,10 +106,8 @@ public class TaskModification {
                     ampm,
                     newDesc
             );
+            dialog.dismiss(); // close after valid
         });
 
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
+        }
 }
