@@ -101,7 +101,7 @@ fun TasksComposeScreen(drawerState: DrawerState) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(tasks, key = { it.name }) { task ->
+                    items(tasks, key = { it.id }) { task ->
                         TaskCardCompose(
                             task = task,
                             onComplete = {

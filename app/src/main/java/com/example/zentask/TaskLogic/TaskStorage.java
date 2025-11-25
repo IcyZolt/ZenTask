@@ -28,6 +28,7 @@ public class TaskStorage {
             obj.put("ampm", t.ampm);
             obj.put("description", t.description);
             obj.put("isArchived", t.isArchived);
+            obj.put("id", t.id);
 
             bw.write(obj.toString());
             bw.newLine();
