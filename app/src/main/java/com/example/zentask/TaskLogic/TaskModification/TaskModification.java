@@ -8,6 +8,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
 import com.example.zentask.R;
 import com.example.zentask.TaskLogic.Task;
+import com.example.zentask.TaskLogic.DateNormalizeHelper;
 
 public class TaskModification {
 
@@ -17,20 +18,29 @@ public class TaskModification {
 
         EditText nameBox = view.findViewById(R.id.editName);
         EditText dateBox = view.findViewById(R.id.editDate);
+        EditText timeBox = view.findViewById(R.id.editTime);
         EditText descBox = view.findViewById(R.id.editDescription);
 
         nameBox.setText(task.name);
         dateBox.setText(task.date);
+        timeBox.setInteger(task.time);
         descBox.setText(task.description);
 
         builder.setView(view);
         builder.setTitle("Edit Task");
 
         builder.setPositiveButton("Save", (d, w) -> {
+
+            String newName = nameBox.getText().toString();
+            String newDate = dateBox.getText().toString();
+            String newDesc = descBox.getText().toString();
+
+            String normalizedDate = DateNormalizeHelper.normalizeDate(newDate);
+
             callback.onEdited(
-                    nameBox.getText().toString(),
-                    dateBox.getText().toString(),
-                    descBox.getText().toString()
+                    newName,
+                    normalizedDate,
+                    newDesc
             );
         });
 

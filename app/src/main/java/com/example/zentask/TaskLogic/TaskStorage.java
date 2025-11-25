@@ -24,6 +24,7 @@ public class TaskStorage {
             JSONObject obj = new JSONObject();
             obj.put("name", t.name);
             obj.put("date", t.date);
+            obj.put("time", t.time);
             obj.put("description", t.description);
             obj.put("isArchived", t.isArchived);
 
@@ -55,6 +56,7 @@ public class TaskStorage {
 
                     String name = obj.optString("name", "");
                     String date = obj.optString("date", "");
+                    int time = Integer.parseInt(obj.optString("time", String.valueOf(0)));
                     String desc = obj.optString("description", "");
                     Task t = new Task(name, date, desc);
 

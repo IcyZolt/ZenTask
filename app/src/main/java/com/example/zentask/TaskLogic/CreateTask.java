@@ -93,7 +93,7 @@ public class CreateTask extends AppCompatActivity{
         // if this is a brand new task, save it
         Task t;
         if (isNewTask) {
-            t = new Task(name, "", "");
+            t = new Task(name, "", 0, "");
             taskList.add(t);
             TaskStorage.saveTasks(this, taskList);
         } else{
@@ -103,12 +103,13 @@ public class CreateTask extends AppCompatActivity{
         Task finalTask = t;
 
         view.setOnLongClickListener(v -> {
-            TaskModification.showEditDialog(this, finalTask, (newName, newDate, newDescription) -> {
+            TaskModification.showEditDialog(this, finalTask, (newName, newDate, newTime, newDescription) -> {
 
                 String oldName = finalTask.name;
 
                 finalTask.name = newName;
                 finalTask.date = newDate;
+                finalTask.time = Integer.parseInt(newTime);
                 finalTask.description = newDescription;
 
                 TaskStorage.saveTasks(this, taskList);
