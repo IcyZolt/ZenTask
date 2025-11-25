@@ -14,12 +14,10 @@ import kotlinx.coroutines.launch
 import com.example.zentask.TaskLogic.CreateTask
 import com.example.zentask.TaskLogic.ArchivedTasks
 
-// Define all screens
 enum class Screen {
     Tasks, Archive, Leaderboards, Settings
 }
 
-// Drawer menu item
 data class DrawerMenuItem(
     val label: String,
     val icon: ImageVector,
@@ -87,7 +85,6 @@ fun NavigationManager() {
             }
         }
     ) {
-        // Show the current screen
         when (currentScreen) {
             Screen.Tasks -> TasksComposeScreen(drawerState)
             Screen.Archive -> ArchiveLauncherScreen(drawerState)
@@ -145,11 +142,11 @@ fun ArchiveLauncherScreen(drawerState: DrawerState) {
     }
 }
 
-// Compose version of Leaderboard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(drawerState: DrawerState) {
     val context = LocalContext.current
+    val expManager = remember { ExperienceManager(context) }
     val username = remember { UserStorage.loadUsername(context) ?: "User" }
 
     Scaffold(topBar = { AppTopBar("Leaderboards", drawerState) }) { padding ->
@@ -159,50 +156,29 @@ fun LeaderboardScreen(drawerState: DrawerState) {
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Text(
-                text = "Your Progress",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Text("Your Progress", style = MaterialTheme.typography.headlineSmall)
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
+            Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Player: $username",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text("Player: $username", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text("Level: ${expManager.getLevel()}", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = "Level: 1",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(
-                        text = "Experience: 0 / 50",
+                        "Experience: ${expManager.getExperience().toInt()} / ${expManager.getRequiredExp()}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        progress = 0f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    LinearProgressIndicator(progress = expManager.getProgressPercent(), modifier = Modifier.fillMaxWidth())
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Coming Soon: Global Leaderboards",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text("Coming Soon: Global Leaderboards", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
-// Compose version of Settings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsComposeScreen(drawerState: DrawerState) {

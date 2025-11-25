@@ -1,8 +1,6 @@
 package com.example.zentask
 
 import android.content.Context
-import android.content.Intent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,19 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-
-import com.example.zentask.TaskLogic.CreateTask
 import com.example.zentask.TaskLogic.Task
 import com.example.zentask.TaskLogic.TaskModification.OnTaskEdited
 import com.example.zentask.TaskLogic.TaskModification.TaskModification
 import com.example.zentask.TaskLogic.TaskStorage
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.compose.foundation.combinedClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +24,8 @@ fun TasksComposeScreen(drawerState: DrawerState) {
     val context = LocalContext.current
     var tasks by remember { mutableStateOf(loadActiveTasks(context)) }
     var showAddDialog by remember { mutableStateOf(false) }
+
+    val expManager = remember { ExperienceManager(context) }
 
     Scaffold(
         topBar = { AppTopBar("Tasks", drawerState) },
@@ -47,101 +41,62 @@ fun TasksComposeScreen(drawerState: DrawerState) {
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            // Greeting
-            val username = remember { UserStorage.loadUsername(context) ?: "User" }
-            val prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-            val showGreeting = remember { prefs.getBoolean("showGreetingOnce", false) }
-
-            if (showGreeting) {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Text(
-                        text = "Hello $username! 👋",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                LaunchedEffect(Unit) {
-                    prefs.edit().putBoolean("showGreetingOnce", false).apply()
-                }
-            }
-
-            // Task List
             if (tasks.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Default.TaskAlt,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
+                        Icon(Icons.Default.TaskAlt, contentDescription = null, modifier = Modifier.size(64.dp))
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "No tasks yet!",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Tap + to create your first task",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Text("No tasks yet!", style = MaterialTheme.typography.titleLarge)
+                        Text("Tap + to create your first task", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(tasks, key = { it.id }) { task ->
                         TaskCardCompose(
                             task = task,
                             onComplete = {
-                                task.isArchived = true
-                                TaskStorage.saveTasks(context, tasks)
-                                tasks = loadActiveTasks(context)
+                                // Complete task: award experience and archive
+                                expManager.completeTask(task.date)
+
+                                val updatedTasks = tasks.map {
+                                    if (it.id == task.id) it.copy(isArchived = true) else it
+                                }
+
+                                TaskStorage.saveTasks(context, updatedTasks)
+                                tasks = updatedTasks.filter { !it.isArchived }
                             },
                             onDelete = {
-                                tasks = tasks.filter { it.name != task.name }
-                                TaskStorage.saveTasks(context, tasks)
+                                val updatedTasks = tasks.filter { it.id != task.id }
+                                TaskStorage.saveTasks(context, updatedTasks)
+                                tasks = updatedTasks
                             },
                             onModify = {
                                 TaskModification.showEditDialog(
                                     context,
                                     task,
-                                    object : OnTaskEdited{
-                                    override fun onEdited(
-                                        newName: String,
-                                        newDate: String,
-                                        newTime: String,
-                                        newAmPm: String,
-                                        newDesc: String) {
-
-                                        val updated = task.copy(
-                                            name = newName,
-                                            date = newDate,
-                                            time = newTime.toInt(),
-                                            ampm = newAmPm,
-                                            description = newDesc
-                                        )
-
-                                        // Reassign tasks list to trigger Compose recomposition
-                                        tasks = tasks.map{
-                                            if(it.id == task.id){
-                                                updated
-                                            } else it
+                                    object : OnTaskEdited {
+                                        override fun onEdited(
+                                            newName: String,
+                                            newDate: String,
+                                            newTime: String,
+                                            newAmPm: String,
+                                            newDesc: String
+                                        ) {
+                                            val updated = task.copy(
+                                                name = newName,
+                                                date = newDate,
+                                                time = newTime.toInt(),
+                                                ampm = newAmPm,
+                                                description = newDesc
+                                            )
+                                            val updatedTasks = tasks.map { if (it.id == task.id) updated else it }
+                                            TaskStorage.saveTasks(context, updatedTasks)
+                                            tasks = updatedTasks.filter { !it.isArchived }
                                         }
-
-                                        TaskStorage.saveTasks(context, tasks)
-                                    }
                                     }
                                 )
                             }
@@ -152,14 +107,14 @@ fun TasksComposeScreen(drawerState: DrawerState) {
         }
     }
 
-    // Add Task Dialog
     if (showAddDialog) {
         AddTaskDialog(
             onDismiss = { showAddDialog = false },
             onAdd = { taskName ->
                 val newTask = Task(taskName, "", 0, "", "")
-                tasks = tasks + newTask
-                TaskStorage.saveTasks(context, tasks)
+                val updatedTasks = tasks + newTask
+                TaskStorage.saveTasks(context, updatedTasks)
+                tasks = updatedTasks
                 showAddDialog = false
             }
         )
@@ -176,7 +131,12 @@ fun TaskCardCompose(
     var showMenu by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = { showMenu = true }
+            ),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -187,88 +147,33 @@ fun TaskCardCompose(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = task.name,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
+                    Text(task.name, style = MaterialTheme.typography.titleMedium)
                     if (task.date.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.CalendarToday,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = task.date,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(task.date, style = MaterialTheme.typography.bodySmall)
                     }
-
-                    if (task.time > 0) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.AccessTime,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = formatTime(task),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    if (task.time > 0 && task.ampm.isNotEmpty()) {
+                        Text(formatTime(task), style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
                 Row {
                     IconButton(onClick = onComplete) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Complete Task",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Icon(Icons.Default.CheckCircle, contentDescription = "Complete Task")
                     }
 
                     Box {
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "More")
                         }
-
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
+                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("Modify")},
-                                onClick = {
-                                    onModify()
-                                    showMenu = false
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Edit, contentDescription = null)
-                                }
+                                text = { Text("Modify") },
+                                onClick = { onModify(); showMenu = false }
                             )
                             DropdownMenuItem(
                                 text = { Text("Delete") },
-                                onClick = {
-                                    onDelete()
-                                    showMenu = false
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Delete, contentDescription = null)
-                                },
-
+                                onClick = { onDelete(); showMenu = false }
                             )
-
                         }
                     }
                 }
@@ -316,15 +221,11 @@ fun AddTaskDialog(
     )
 }
 
-private fun loadActiveTasks(context: Context): List<Task> {
-    return TaskStorage.loadTasks(context).filter { !it.isArchived }
-}
+private fun loadActiveTasks(context: Context): List<Task> =
+    TaskStorage.loadTasks(context).filter { !it.isArchived }
 
 private fun formatTime(task: Task): String {
-    if (task.time <= 0 || task.ampm.isNullOrEmpty()) {
-        return ""
-    }
     val hour = task.time / 100
     val minute = task.time % 100
-    return String.format("%02d:%02d %s", hour, minute, task.ampm)
+    return "%02d:%02d %s".format(hour, minute, task.ampm)
 }

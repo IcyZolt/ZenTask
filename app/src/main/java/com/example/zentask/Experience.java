@@ -1,4 +1,5 @@
 package com.example.zentask;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,6 +14,17 @@ public class Experience {
 
     private static final int BASE_LEVEL_THRESHOLD = 50;
 
+    public interface ExperienceListener {
+        void onExperienceUpdated(int level, double experience, int xpToNextLevel);
+        void onLevelUp(int newLevel);
+    }
+
+    private ExperienceListener listener;
+
+    public void setExperienceListener(ExperienceListener listener) {
+        this.listener = listener;
+    }
+
     public Experience() {
         this.level = 0;
         this.experience = 0;
@@ -20,6 +32,7 @@ public class Experience {
         this.levelGainModifier = 1;
         this.experienceGainModifier = 1;
     }
+
     public void completeTask(String taskDueDate, String completionDate) {
         boolean onTime = isDueOnTime(taskDueDate, completionDate);
 
@@ -36,15 +49,19 @@ public class Experience {
     }
 
     private double experienceGain(double levelGainModifier) {
-        return 10 * levelGainModifier * streak;
+        return 15 * levelGainModifier * streak; // Increased for faster leveling
     }
 
     private int requiredExperience() {
-        return (int) (BASE_LEVEL_THRESHOLD * Math.pow(1.25, level) * experienceGainModifier);
+        return (int) (BASE_LEVEL_THRESHOLD * Math.pow(1.18, level) * experienceGainModifier);
     }
 
     private void addExperience(double amount) {
         this.experience += amount;
+
+        if (listener != null) {
+            listener.onExperienceUpdated(level, experience, getExperienceToNextLevel());
+        }
 
         while (this.experience >= requiredExperience()) {
             this.experience -= requiredExperience();
@@ -55,6 +72,10 @@ public class Experience {
     private void levelUp() {
         this.level++;
         System.out.println("Congratulations! You reached level " + level);
+
+        if (listener != null) {
+            listener.onLevelUp(level);
+        }
     }
 
     public boolean isDueOnTime(String taskDueDate, String completionDate) {
@@ -69,20 +90,8 @@ public class Experience {
         }
     }
 
-    // Getters
-    public int getLevel() {
-        return level;
-    }
-
-    public double getExperience() {
-        return experience;
-    }
-
-    public double getStreak() {
-        return streak;
-    }
-
-    public int getExperienceToNextLevel() {
-        return requiredExperience() - (int) experience;
-    }
+    public int getLevel() { return level; }
+    public double getExperience() { return experience; }
+    public double getStreak() { return streak; }
+    public int getExperienceToNextLevel() { return requiredExperience() - (int) experience; }
 }
