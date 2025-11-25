@@ -10,6 +10,10 @@
         android:theme="@style/Theme.ZenTask">
 
         <activity
+            android:name=".TaskLogic.ArchivedTasks"
+            android:exported="false" />
+
+        <activity
             android:name=".HelpPage"
             android:exported="false" />
 
