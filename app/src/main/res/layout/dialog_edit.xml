@@ -17,6 +17,47 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"   >
+        <EditText
+            android:id="@+id/editHour"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:maxLength="2"
+            android:hint="HH"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textSize="20sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            />
+
+        <EditText
+            android:id="@+id/editMinute"
+            android:hint="MM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="2"
+            android:layout_weight="1"
+            android:inputType="number"
+            />
+
+        <Spinner
+            android:id="@+id/editAmPm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+        />
+
+    </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,15 +67,8 @@
 
 
     <EditText
-        android:id="@+id/editTime"
-        android:hint="Task time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-
-    <EditText
         android:id="@+id/editDescription"
-        android:hint="Example: Today I will go to the moon!"
+        android:hint="Example: Today I will get stuff done!"
         android:background="@android:drawable/edit_text"
         android:minLines="3"
         android:layout_width="match_parent"

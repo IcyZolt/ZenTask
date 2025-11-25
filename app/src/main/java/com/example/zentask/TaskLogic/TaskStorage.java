@@ -25,6 +25,7 @@ public class TaskStorage {
             obj.put("name", t.name);
             obj.put("date", t.date);
             obj.put("time", t.time);
+            obj.put("ampm", t.ampm);
             obj.put("description", t.description);
             obj.put("isArchived", t.isArchived);
 
@@ -57,8 +58,10 @@ public class TaskStorage {
                     String name = obj.optString("name", "");
                     String date = obj.optString("date", "");
                     int time = Integer.parseInt(obj.optString("time", String.valueOf(0)));
+                    String ampm = obj.optString("ampm", "AM");
                     String desc = obj.optString("description", "");
-                    Task t = new Task(name, date, desc);
+
+                    Task t = new Task(name, date, time, ampm, desc);
 
                     t.isArchived = obj.optBoolean("isArchived", false);
 

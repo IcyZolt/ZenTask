@@ -5,14 +5,17 @@ public class Task {
     public String date;
 
     public int time;
+    
+    public String ampm;
     public String description;
     public boolean isArchived;
 
-    public Task(String name, String date, int time, String description) {
+    public Task(String name, String date, int time, String ampm, String desc) {
         this.name = name;
         this.date = date;
         this.time = time;
-        this.description = description;
+        this.ampm = ampm;
+        this.description = desc;
         this.isArchived = false;
     }
 }
