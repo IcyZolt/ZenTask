@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ZenTaskTheme {
-
                 val cppMessage = stringFromJNI()
                 //val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
 
