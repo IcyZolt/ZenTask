@@ -1,6 +1,7 @@
 package com.example.zentask
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+
+import com.example.zentask.TaskLogic.CreateTask
 import com.example.zentask.TaskLogic.Task
+import com.example.zentask.TaskLogic.TaskModification.OnTaskEdited
+import com.example.zentask.TaskLogic.TaskModification.TaskModification
 import com.example.zentask.TaskLogic.TaskStorage
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -107,6 +112,33 @@ fun TasksComposeScreen(drawerState: DrawerState) {
                             onDelete = {
                                 tasks = tasks.filter { it.name != task.name }
                                 TaskStorage.saveTasks(context, tasks)
+                            },
+                            onModify = {
+                                TaskModification.showEditDialog(
+                                    context,
+                                    task,
+                                    object : OnTaskEdited{
+                                    override fun onEdited(
+                                        newName: String,
+                                        newDate: String,
+                                        newTime: String,
+                                        newAmPm: String,
+                                        newDesc: String) {
+
+                                        // Mutate the existing task
+                                        task.name = newName
+                                        task.date = newDate
+                                        task.time = newTime.toInt()
+                                        task.ampm = newAmPm
+                                        task.description = newDesc
+
+                                        // Reassign tasks list to trigger Compose recomposition
+                                        tasks = tasks.toList()
+
+                                        TaskStorage.saveTasks(context, tasks)
+                                    }
+                                    }
+                                )
                             }
                         )
                     }
@@ -133,7 +165,8 @@ fun TasksComposeScreen(drawerState: DrawerState) {
 fun TaskCardCompose(
     task: Task,
     onComplete: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onModify: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -210,6 +243,16 @@ fun TaskCardCompose(
                             onDismissRequest = { showMenu = false }
                         ) {
                             DropdownMenuItem(
+                                text = { Text("Modify")},
+                                onClick = {
+                                    onModify()
+                                    showMenu = false
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Edit, contentDescription = null)
+                                }
+                            )
+                            DropdownMenuItem(
                                 text = { Text("Delete") },
                                 onClick = {
                                     onDelete()
@@ -217,8 +260,10 @@ fun TaskCardCompose(
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.Delete, contentDescription = null)
-                                }
+                                },
+
                             )
+
                         }
                     }
                 }

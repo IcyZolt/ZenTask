@@ -29,9 +29,9 @@ class MainActivity : ComponentActivity() {
             startActivity(Intent(this, SettingsPage::class.java))
             finish()
             return
-        } else {
+        } /*else {
             Log.d("MainActivity", "Welcome back, $usernameFromFile")
-        }
+        }*/
 
         enableEdgeToEdge()
 

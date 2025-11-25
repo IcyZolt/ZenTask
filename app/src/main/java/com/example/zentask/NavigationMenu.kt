@@ -62,8 +62,9 @@ fun NavigationManager() {
                                 when (item.screen) {
                                     Screen.Tasks -> {
                                         // Launch Java Activity for Tasks
-                                        context.startActivity(Intent(context, CreateTask::class.java))
+                                        currentScreen = Screen.Tasks
                                         drawerState.close()
+                                        return@launch
                                     }
                                     Screen.Archive -> {
                                         // Launch Java Activity for Archive
@@ -88,7 +89,7 @@ fun NavigationManager() {
     ) {
         // Show the current screen
         when (currentScreen) {
-            Screen.Tasks -> TasksLauncherScreen(drawerState)
+            Screen.Tasks -> TasksComposeScreen(drawerState)
             Screen.Archive -> ArchiveLauncherScreen(drawerState)
             Screen.Leaderboards -> LeaderboardScreen(drawerState)
             Screen.Settings -> SettingsComposeScreen(drawerState)
@@ -115,10 +116,11 @@ fun AppTopBar(title: String, drawerState: DrawerState) {
 @Composable
 fun TasksLauncherScreen(drawerState: DrawerState) {
     val context = LocalContext.current
-
+    /*
     LaunchedEffect(Unit) {
         context.startActivity(Intent(context, CreateTask::class.java))
-    }
+    }*/
+
 
     Scaffold(topBar = { AppTopBar("Tasks", drawerState) }) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
