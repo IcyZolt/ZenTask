@@ -1,15 +1,11 @@
 package com.example.zentask
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,60 +15,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
+// Task data class
 data class Task(
     val id: Int,
     val title: String,
     var isDone: Boolean = false
 )
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                TaskManagerApp()
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskManagerApp() {
-
+fun TasksScreen(drawerState: DrawerState) {
     var tasks by remember { mutableStateOf(listOf<Task>()) }
     var isAdding by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Tasks") },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        },
-
+        topBar = { AppTopBar("Tasks", drawerState) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { isAdding = true }
-            ) {
+            FloatingActionButton(onClick = { isAdding = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Task")
             }
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-
             // Add Task Field
             if (isAdding) {
                 TextField(
@@ -87,7 +60,7 @@ fun TaskManagerApp() {
                         onDone = {
                             if (text.isNotBlank()) {
                                 tasks = tasks + Task(
-                                    id = tasks.size + 1,
+                                    id = (tasks.maxOfOrNull { it.id } ?: 0) + 1,
                                     title = text
                                 )
                                 text = ""
@@ -100,7 +73,7 @@ fun TaskManagerApp() {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Tasks List
+            // Task List
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
@@ -108,13 +81,11 @@ fun TaskManagerApp() {
                 items(tasks, key = { it.id }) { task ->
                     TaskCard(
                         task = task,
-                        onToggle = {
-                            tasks = tasks.map {
-                                if (it.id == task.id) it.copy(isDone = !it.isDone) else it
-                            }
+                        onToggle = { t ->
+                            tasks = tasks.map { if (it.id == t.id) it.copy(isDone = !it.isDone) else it }
                         },
-                        onDelete = {
-                            tasks = tasks.filter { it.id != task.id }
+                        onDelete = { t ->
+                            tasks = tasks.filter { it.id != t.id }
                         }
                     )
                 }
@@ -126,8 +97,8 @@ fun TaskManagerApp() {
 @Composable
 fun TaskCard(
     task: Task,
-    onToggle: () -> Unit,
-    onDelete: () -> Unit
+    onToggle: (Task) -> Unit,
+    onDelete: (Task) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -141,15 +112,14 @@ fun TaskCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             Text(
                 text = task.title,
                 textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
                 color = if (task.isDone) Color.Gray else Color.Unspecified,
-                modifier = Modifier.clickable { onToggle() }
+                modifier = Modifier.clickable { onToggle(task) }
             )
 
-            IconButton(onClick = { onDelete() }) {
+            IconButton(onClick = { onDelete(task) }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Task")
             }
         }
