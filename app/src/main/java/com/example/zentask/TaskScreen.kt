@@ -125,15 +125,20 @@ fun TasksComposeScreen(drawerState: DrawerState) {
                                         newAmPm: String,
                                         newDesc: String) {
 
-                                        // Mutate the existing task
-                                        task.name = newName
-                                        task.date = newDate
-                                        task.time = newTime.toInt()
-                                        task.ampm = newAmPm
-                                        task.description = newDesc
+                                        val updated = task.copy(
+                                            name = newName,
+                                            date = newDate,
+                                            time = newTime.toInt(),
+                                            ampm = newAmPm,
+                                            description = newDesc
+                                        )
 
                                         // Reassign tasks list to trigger Compose recomposition
-                                        tasks = tasks.toList()
+                                        tasks = tasks.map{
+                                            if(it.id == task.id){
+                                                updated
+                                            } else it
+                                        }
 
                                         TaskStorage.saveTasks(context, tasks)
                                     }

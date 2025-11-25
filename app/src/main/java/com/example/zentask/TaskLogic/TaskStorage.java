@@ -22,13 +22,13 @@ public class TaskStorage {
                 StandardCharsets.UTF_8))) {
         for(Task t : tasks){
             JSONObject obj = new JSONObject();
-            obj.put("name", t.name);
-            obj.put("date", t.date);
-            obj.put("time", t.time);
-            obj.put("ampm", t.ampm);
-            obj.put("description", t.description);
-            obj.put("isArchived", t.isArchived);
-            obj.put("id", t.id);
+            obj.put("name", t.getName());
+            obj.put("date", t.getDate());
+            obj.put("time", t.getTime());
+            obj.put("ampm", t.getAmpm());
+            obj.put("description", t.getDescription());
+            obj.put("isArchived", t.isArchived());
+            obj.put("id", t.getId());
 
             bw.write(obj.toString());
             bw.newLine();
@@ -62,9 +62,10 @@ public class TaskStorage {
                     String ampm = obj.optString("ampm", "AM");
                     String desc = obj.optString("description", "");
 
-                    Task t = new Task(name, date, time, ampm, desc);
+                    String id = obj.optString("id", java.util.UUID.randomUUID().toString());
+                    boolean archived = obj.optBoolean("isArchived", false);
 
-                    t.isArchived = obj.optBoolean("isArchived", false);
+                    Task t = new Task(name, date, time, ampm, desc, archived, id);
 
                     list.add(t);
             } catch (org.json.JSONException e){
