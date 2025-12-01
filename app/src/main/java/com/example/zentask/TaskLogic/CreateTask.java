@@ -67,7 +67,7 @@ public class CreateTask extends AppCompatActivity {
 
         // Build task list UI
         for (Task t : taskList) {
-            addCard(t.name, false);
+            addCard(t, false);
         }
 
         // Settings button
@@ -85,7 +85,13 @@ public class CreateTask extends AppCompatActivity {
         final EditText name = view.findViewById(R.id.nameEdit);
         builder.setView(view);
         builder.setTitle("Let's get something done!")
-                .setPositiveButton("I'M READY!", (dialog, which) -> addCard(name.getText().toString(), true))
+                .setPositiveButton("I'M READY!", (dialog, which) -> {
+                    String n = name.getText().toString().trim();
+                    if (!n.isEmpty()) {
+                        Task newTask = new Task(n, "", 0, "", "", false, java.util.UUID.randomUUID().toString());
+                        addCard(newTask, true);
+                    }
+                })
                 .setNegativeButton("One sec...", (dialog, which) -> {
                 });
 
@@ -93,46 +99,47 @@ public class CreateTask extends AppCompatActivity {
     }
 
     @SuppressLint("InflateParams")
-    private void addCard(String name, Boolean isNewTask) {
+    private void addCard(Task task, Boolean isNewTask) {
         final View view = getLayoutInflater().inflate(R.layout.card, null);
 
         TextView nameView = view.findViewById(R.id.name);
-
         TextView dateView = view.findViewById(R.id.date);
         TextView timeView = view.findViewById(R.id.time);
 
         Button delete = view.findViewById(R.id.delete);
         Button complete = view.findViewById(R.id.complete); // new button
 
-        nameView.setText(name);
+        view.setTag(task.getId());
 
-        // If this is a new task, save it
-        Task t;
+        Task finalTask;
+
+
         if (isNewTask) {
-            t = new Task(name, "", 0, "", "");
-            taskList.add(t);
+            finalTask = task;
+            taskList.add(finalTask);
             TaskStorage.saveTasks(this, taskList);
         } else {
-            t = taskList.stream().filter(x -> x.name.equals(name)).findFirst().orElse(null);
+            // find the existing saved task by ID
+            finalTask = taskList.stream()
+                    .filter(x -> x.getId().equals(task.getId()))
+                    .findFirst()
+                    .orElse(task); // fallback
         }
 
-        Task finalTask = t;
-
-        nameView.setText(finalTask.name);
-        dateView.setText(finalTask.date);
-
+        nameView.setText(finalTask.getName());
+        dateView.setText(finalTask.getDate());
         timeView.setText(formatTime(finalTask));
 
 
         view.setOnLongClickListener(v -> {
             TaskModification.showEditDialog(this, finalTask, (newName, newDate, newTime, ampm, newDescription) -> {
-                String oldName = finalTask.name;
+                String oldName = finalTask.getName();
 
-                finalTask.name = newName;
-                finalTask.date = newDate;
-                finalTask.time = Integer.parseInt(newTime);
-                finalTask.ampm = ampm;
-                finalTask.description = newDescription;
+                finalTask.setName(newName);
+                finalTask.setDate(newDate);
+                finalTask.setTime(Integer.parseInt(newTime));
+                finalTask.setAmpm(ampm);
+                finalTask.setDescription(newDescription);
 
                 TaskStorage.saveTasks(this, taskList);
                 refresh(oldName, finalTask);
@@ -149,11 +156,11 @@ public class CreateTask extends AppCompatActivity {
 
         // Complete task and grant experience
         complete.setOnClickListener(v -> {
-            finalTask.isArchived = true;
+            finalTask.setArchived(true);
             TaskStorage.saveTasks(this, taskList);
 
             String completionDate = new SimpleDateFormat("M/d/yyyy").format(new Date());
-            userExperience.completeTask(finalTask.date, completionDate);
+            userExperience.completeTask(finalTask.getDate(), completionDate);
 
             Toast.makeText(this, "Task completed! Level: " + userExperience.getLevel(), Toast.LENGTH_SHORT).show();
 
@@ -178,26 +185,25 @@ public class CreateTask extends AppCompatActivity {
             TextView timeView = card.findViewById(R.id.time);
 
             if (nameView.getText().toString().equals(oldName)) {
-                continue;
-            }
-                nameView.setText(task.name);
-                dateView.setText(task.date);
+
+                nameView.setText(task.getName());
+                dateView.setText(task.getDate());
                 timeView.setText(formatTime(task));
 
                 break;
+            }
         }
     }
-
     private String formatTime(Task task) {
-        if (task.time <= 0 || task.ampm == null || task.ampm.isEmpty()) {
+        if (task.getTime() <= 0 || task.getAmpm() == null || task.getAmpm().isEmpty()) {
             return "";
         }
 
-        int hour = task.time / 100;
-        int minute = task.time % 100;
+        int hour = task.getTime() / 100;
+        int minute = task.getTime() % 100;
 
-        return String.format("%02d:%02d %s", hour, minute, task.ampm);
+        return String.format("%02d:%02d %s", hour, minute, task.getAmpm());
     }
-
-
 }
+
+

@@ -28,15 +28,15 @@ public class TaskModification {
 
         EditText descBox = view.findViewById(R.id.editDescription);
 
-        int hour = task.time /100;
-        int minute = task.time %100;
+        int hour = task.getTime() /100;
+        int minute = task.getTime() %100;
 
-        nameBox.setText(task.name);
-        dateBox.setText(task.date);
+        nameBox.setText(task.getName());
+        dateBox.setText(task.getDate());
         hourBox.setText(String.valueOf(hour));
         minuteBox.setText(String.valueOf(minute));
 
-        descBox.setText(task.description);
+        descBox.setText(task.getDescription());
 
         builder.setView(view);
         builder.setTitle("Edit Task");
@@ -50,7 +50,7 @@ public class TaskModification {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         AmPmBox.setAdapter(adapter);
 
-        AmPmBox.setSelection(task.ampm != null && task.ampm.equals("PM") ? 1 : 0);
+        AmPmBox.setSelection(task.getAmpm() != null && task.getAmpm().equals("PM") ? 1 : 0);
 
         builder.setPositiveButton("Save", null);
         builder.setNegativeButton("Cancel", null);

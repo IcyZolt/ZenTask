@@ -27,7 +27,7 @@ public class ArchivedTasks extends AppCompatActivity {
 
         for (Task t : taskList) {
 
-            if (t.isArchived) {
+            if (t.isArchived()) {
                 addArchivedCard(t);
             }
         }
@@ -37,8 +37,9 @@ public class ArchivedTasks extends AppCompatActivity {
         View v = getLayoutInflater().inflate(R.layout.archived_card, null);
 
         TextView taskName = v.findViewById(R.id.archived_task_name);
-        taskName.setText(task.name);
+        taskName.setText(task.getName());
 
         archivedContainer.addView(v);
     }
+
 }
